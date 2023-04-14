@@ -45,7 +45,7 @@ jobs:
           CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
         with:
           to: html
-          path: q8.qmd
+          path: hw8.qmd
       - name: Setup git config
         run: |
           git config user.name "GitHub Actions Bot"

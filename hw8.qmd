@@ -1,0 +1,104 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(paletteer)
+library(plotly)
+library(flexdashboard)
+library(osmdata)
+library(dplyr)
+library(gt)
+library(viridis, quietly = TRUE)
+library(sf)
+library(ggplot2)
+library(stringr)
+library(leaflet)
+library(rgdal)
+library(ggthemes, quietly = TRUE)
+library("ggmap")
+library("ggthemes")
+library(tigris)
+library(tidycensus)
+
+
+### NYC 2022 ACS Estimated Household Income for Asian Alone
+census_api_key("9ce44fc633a9ae91c561bc9ea6a4081026323ff2")
+#Google maps API key
+register_google(key = "MAPS_API_KEY")
+#Call the ACS API, returns a sf object
+mn_income.df <- get_acs(
+geography = "tract",
+  variables = "B19001D_001E", 
+  state     = "MN",
+  county    = "Hennepin",
+  year      = 2020,
+  geometry  = TRUE,
+  cb        = FALSE
+) 
+#Get the bounding box and county outline
+mn.box           <- osmdata::getbb("minnesota")
+hennepin.box     <- osmdata::getbb("hennepin")
+hennepin.outline <- osmdata::getbb("hennepin", format_out = "polygon")[[1]] %>%
+  as_tibble() %>%
+  rename(longitude = V1, latitude = V2)
+
+mn_base.map <- get_map(
+  location = hennepin.box,
+  source   = "stamen",
+  maptype  = "terrain",
+  crop = TRUE
+)
+```
+
+```{r}
+#Create the base map
+hennepin_base.gg <- ggmap(mn_base.map) +
+  geom_polygon(data = hennepin.outline, aes(x = longitude, y = latitude), colour = "black", size = 1.6, alpha = 0.1) +
+  theme_map() +
+  theme(
+    plot.title   = element_text(size  = 16,
+                                hjust = 0.5),
+    legend.text  = element_text(size = 16),
+    legend.title = element_text(size = 16),
+    legend.position = "right"
+  )
+
+mn_label.df <- mn_income.df %>%
+  mutate(
+  tract      = str_split(NAME, ",") %>%
+                 map_chr(1) %>%
+                 str_remove("Census Tract "),
+    text_label = str_c(
+                  "Tract: ",
+                  tract,
+                  "\nEstimated Household Income: ",
+                  scales::dollar(estimate)))
+
+mn_income.ggmap <- hennepin_base.gg +  
+  geom_sf(data = mn_label.df , 
+          aes(fill = estimate, text = text_label),
+          colour = "black", size = 0.1,
+          inherit.aes = FALSE) + 
+  labs(title = "NYC 2022 ACS Estimated Household Income for Asian Alone") + 
+  scale_fill_viridis_c("Estimated Household Income", labels = scales::dollar) +
+  theme_map()+
+  theme(
+    plot.title   = element_text(size  = 16,
+                                hjust = 0.5),
+    legend.text  = element_text(size = 16),
+    legend.title = element_text(size = 16),
+    legend.position = "right"
+  )
+
+
+ggplotly(mn_income.ggmap,
+         tooltip = "text",
+         height  = 600,width   = 800) %>%
+    style(hoveron = "fills")
+
+```

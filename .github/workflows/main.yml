@@ -1,12 +1,6 @@
-# on: [workflow_dispatch]
+on: [workflow_dispatch]
 
-# Un-comment the following lines (and comment out the first one) to make this a scheduled job
-on:
-  schedule:
-    - cron:  '0 22 * * *'
-  push:
-   branches: main
-  workflow_dispatch:
+name: Step 1 Render Report
 
 jobs:
   build-deploy:
@@ -34,23 +28,24 @@ jobs:
                any::knitr
                any::rmarkdown
                any::tidyverse
+               any::ggplot2
+               any::lubridate
+               any::googleway
+               any::purrr
+               any::gepaf
+               any::gt
+               any::paletteer
                any::plotly
                any::osmdata
-               any::leaflet
-               any::janitor
-               any::sf
-               any::tidycensus
-               any::tigris
-               any::gt
                any::ggmap
-               any::ggthemes               
-      - name: Render document
+               any::tidycensus
+      - name: Step 1 Render report
         uses: quarto-dev/quarto-actions/render@v2
         env:
           CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
         with:
           to: html
-          path: hw8.qmd
+          path: q8.qmd
       - name: Setup git config
         run: |
           git config user.name "GitHub Actions Bot"

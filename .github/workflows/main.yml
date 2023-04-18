@@ -27,7 +27,7 @@ jobs:
             packages:
                any::knitr
                any::rmarkdown
-               any::tidyverse
+               any::dplyr
                any::ggplot2
                any::lubridate
                any::googleway
@@ -39,6 +39,7 @@ jobs:
                any::osmdata
                any::ggmap
                any::tidycensus
+               any::ggthemes
       - name: Step 1 Render report
         uses: quarto-dev/quarto-actions/render@v2
         env:

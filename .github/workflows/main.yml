@@ -41,6 +41,7 @@ jobs:
                any::tidycensus
                any::ggthemes
                any::stringr
+               any::purrf
       - name: Step 1 Render report
         uses: quarto-dev/quarto-actions/render@v2
         env:

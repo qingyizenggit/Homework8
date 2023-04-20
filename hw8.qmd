@@ -20,7 +20,7 @@ library(purrr)
 ### MN 2022 ACS Estimated Household Income for Asian Alone
 census_api_key("9ce44fc633a9ae91c561bc9ea6a4081026323ff2")
 #Google maps API key
-#register_google(key = "MAPS_API_KEY")
+register_google(key = "MAPS_API_KEY")
 #Call the ACS API, returns a sf object
 mn_income.df <- get_acs(
 geography = "tract",
